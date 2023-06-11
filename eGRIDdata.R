@@ -3,6 +3,7 @@ library(shiny)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
+library(formattable)
 
 plant_data_cnames <- read_excel("eGRID2021_data.xlsx", sheet = "PLNT21", skip = 1, n_max = 0) %>% 
   names()
@@ -18,8 +19,8 @@ operator_totals <- plant_data %>%
     group_by(OPRNAME, OPRCODE, ISORTO) %>% #, PLPRMFL, PLFUELCT) %>% 
     summarize(total_generation = sum(PLNGENAN), total_capacity = sum(NAMEPCAP), coal_generation = sum(PLGENACL), oil_generation = sum(PLGENAOL), gas_generation = sum(PLGENAGS), nuclear_generation = sum(PLGENANC), hydro_generation = sum(PLGENAHY), biomass_generation = sum(PLGENABM), wind_generation = sum(PLGENAWI), solar_generation = sum(PLGENASO), geothermal_generation = sum(PLGENAGT), other_fossil_generation = sum(PLGENAOF), other_generation = sum(PLGENAOP), renewables_generation = sum(PLGENATR), nox_emissions =  sum(PLNOXAN), so2_emissions = sum(PLSO2AN), co2_emissions = sum(PLCO2AN), ch4_emissions = sum(PLCH4AN), co2_eq_emissions = sum(PLCO2EQA)) %>% 
     mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/total_generation, co2_eq_rate = co2_eq_emissions/total_generation) %>% 
+    mutate(across(where(is.numeric), ~digits(.x,3)), across(where(~ is.numeric(.x) && mean(.x) > 50, ~digits(.x,1)))) %>% 
     arrange(desc(total_generation)) %>%
-    mutate_if(is.numeric, round, 3) %>% 
     relocate(c(renewables_pct, fossil_fuel_pct, co2_eq_rate), .after = total_generation) 
 
 state_totals <- plant_data %>%
