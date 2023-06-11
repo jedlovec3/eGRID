@@ -18,27 +18,24 @@ operator_totals <- plant_data %>%
     #filter(PSTATABB == "PA") %>% 
     group_by(OPRNAME, OPRCODE, ISORTO) %>% #, PLPRMFL, PLFUELCT) %>% 
     summarize(total_generation = sum(PLNGENAN), total_capacity = sum(NAMEPCAP), coal_generation = sum(PLGENACL), oil_generation = sum(PLGENAOL), gas_generation = sum(PLGENAGS), nuclear_generation = sum(PLGENANC), hydro_generation = sum(PLGENAHY), biomass_generation = sum(PLGENABM), wind_generation = sum(PLGENAWI), solar_generation = sum(PLGENASO), geothermal_generation = sum(PLGENAGT), other_fossil_generation = sum(PLGENAOF), other_generation = sum(PLGENAOP), renewables_generation = sum(PLGENATR), nox_emissions =  sum(PLNOXAN), so2_emissions = sum(PLSO2AN), co2_emissions = sum(PLCO2AN), ch4_emissions = sum(PLCH4AN), co2_eq_emissions = sum(PLCO2EQA)) %>% 
-    mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/total_generation, co2_eq_rate = co2_eq_emissions/total_generation) %>% 
-    mutate(across(where(is.numeric), ~digits(.x,3)), across(where(~ is.numeric(.x) && mean(.x) > 50, ~digits(.x,1)))) %>% 
+    mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/na_if(total_generation,0), co2_eq_rate = co2_eq_emissions/na_if(total_generation,0)) %>% 
+    mutate(!!!rules) %>% 
     arrange(desc(total_generation)) %>%
     relocate(c(renewables_pct, fossil_fuel_pct, co2_eq_rate), .after = total_generation) 
 
 state_totals <- plant_data %>%
-    group_by(PSTATABB) %>% 
-    summarize(total_generation = sum(PLNGENAN), total_capacity = sum(NAMEPCAP), coal_generation = sum(PLGENACL), oil_generation = sum(PLGENAOL), gas_generation = sum(PLGENAGS), nuclear_generation = sum(PLGENANC), hydro_generation = sum(PLGENAHY), biomass_generation = sum(PLGENABM), wind_generation = sum(PLGENAWI), solar_generation = sum(PLGENASO), geothermal_generation = sum(PLGENAGT), other_fossil_generation = sum(PLGENAOF), other_generation = sum(PLGENAOP), renewables_generation = sum(PLGENATR), nox_emissions =  sum(PLNOXAN), so2_emissions = sum(PLSO2AN), co2_emissions = sum(PLCO2AN), ch4_emissions = sum(PLCH4AN), co2_eq_emissions = sum(PLCO2EQA)) %>% 
-    mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/total_generation, co2_eq_rate = co2_eq_emissions/total_generation) %>% 
-    arrange(desc(co2_eq_rate)) %>%
-    mutate_if(is.numeric, round, 3) %>% 
-    relocate(c(renewables_pct, fossil_fuel_pct, co2_eq_rate), .after = total_generation)
-
+  group_by(PSTATABB) %>% 
+  summarize(total_generation = sum(PLNGENAN), total_capacity = sum(NAMEPCAP), coal_generation = sum(PLGENACL), oil_generation = sum(PLGENAOL), gas_generation = sum(PLGENAGS), nuclear_generation = sum(PLGENANC), hydro_generation = sum(PLGENAHY), biomass_generation = sum(PLGENABM), wind_generation = sum(PLGENAWI), solar_generation = sum(PLGENASO), geothermal_generation = sum(PLGENAGT), other_fossil_generation = sum(PLGENAOF), other_generation = sum(PLGENAOP), renewables_generation = sum(PLGENATR), nox_emissions =  sum(PLNOXAN), so2_emissions = sum(PLSO2AN), co2_emissions = sum(PLCO2AN), ch4_emissions = sum(PLCH4AN), co2_eq_emissions = sum(PLCO2EQA)) %>% 
+  mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/na_if(total_generation,0), co2_eq_rate = co2_eq_emissions/na_if(total_generation,0)) %>% 
+  mutate(!!!rules) %>% 
+  relocate(c(renewables_pct, fossil_fuel_pct, co2_eq_rate), .after = total_generation)
 
 iso_totals <- plant_data %>%
-    group_by(ISORTO) %>% 
-    summarize(total_generation = sum(PLNGENAN), total_capacity = sum(NAMEPCAP), coal_generation = sum(PLGENACL), oil_generation = sum(PLGENAOL), gas_generation = sum(PLGENAGS), nuclear_generation = sum(PLGENANC), hydro_generation = sum(PLGENAHY), biomass_generation = sum(PLGENABM), wind_generation = sum(PLGENAWI), solar_generation = sum(PLGENASO), geothermal_generation = sum(PLGENAGT), other_fossil_generation = sum(PLGENAOF), other_generation = sum(PLGENAOP), renewables_generation = sum(PLGENATR), nox_emissions =  sum(PLNOXAN), so2_emissions = sum(PLSO2AN), co2_emissions = sum(PLCO2AN), ch4_emissions = sum(PLCH4AN), co2_eq_emissions = sum(PLCO2EQA)) %>% 
-    mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/total_generation, co2_eq_rate = co2_eq_emissions/total_generation) %>% 
-    arrange(desc(co2_eq_rate)) %>%
-    mutate_if(is.numeric, round, 3) %>% 
-    relocate(c(renewables_pct, fossil_fuel_pct, co2_eq_rate), .after = total_generation)
+  group_by(ISORTO) %>% 
+  summarize(total_generation = sum(PLNGENAN), total_capacity = sum(NAMEPCAP), coal_generation = sum(PLGENACL), oil_generation = sum(PLGENAOL), gas_generation = sum(PLGENAGS), nuclear_generation = sum(PLGENANC), hydro_generation = sum(PLGENAHY), biomass_generation = sum(PLGENABM), wind_generation = sum(PLGENAWI), solar_generation = sum(PLGENASO), geothermal_generation = sum(PLGENAGT), other_fossil_generation = sum(PLGENAOF), other_generation = sum(PLGENAOP), renewables_generation = sum(PLGENATR), nox_emissions =  sum(PLNOXAN), so2_emissions = sum(PLSO2AN), co2_emissions = sum(PLCO2AN), ch4_emissions = sum(PLCH4AN), co2_eq_emissions = sum(PLCO2EQA)) %>% 
+  mutate(renewables_pct = renewables_generation/total_generation, fossil_fuel_pct = (coal_generation + oil_generation + gas_generation + other_fossil_generation)/na_if(total_generation,0), co2_eq_rate = co2_eq_emissions/na_if(total_generation,0)) %>% 
+  mutate(!!!rules) %>% 
+  relocate(c(renewables_pct, fossil_fuel_pct, co2_eq_rate), .after = total_generation)
 
 
 ui <- fluidPage(
