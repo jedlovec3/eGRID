@@ -62,9 +62,7 @@ server <- function(input, output) {
   })
     
   # choose columns to display
-  #diamonds2 = diamonds[sample(nrow(diamonds), 1000), ]
   output$mytable1 <- DT::renderDataTable({
-    #DT::datatable(diamonds2[, input$show_vars, drop = FALSE])
     DT::datatable(operator_totals, options = list(orderClasses = TRUE, options = list(lengthMenu = c(10, 25), pageLength = 10)))
   })
   
